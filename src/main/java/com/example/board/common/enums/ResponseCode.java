@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum ResponseCode {
-    SUCCESS("0000");
+    SUCCESS("0000"),
+    FAIL("9999");
 
     private String code;
 

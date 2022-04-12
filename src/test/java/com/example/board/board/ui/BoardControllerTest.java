@@ -3,6 +3,8 @@ package com.example.board.board.ui;
 import com.example.board.board.application.BoardService;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
+import com.example.board.board.dto.response.BoardSelectResponseDto;
+import com.example.board.common.error.exception.BoardNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,18 +45,19 @@ public class BoardControllerTest {
     public class CreateTest {
         private final String URL = "/board";
         private BoardCreateRequestDto boardCreateRequestDto;
-        private BoardCreateResponseDto boardCreateResponseDto;
 
         @BeforeEach
         public void setUp() {
+            String TITLE = "title";
+            String CONTENT = "content";
             boardCreateRequestDto = BoardCreateRequestDto.builder()
-                    .title("title")
-                    .content("content")
+                    .title(TITLE)
+                    .content(CONTENT)
                     .build();
 
-            boardCreateResponseDto = BoardCreateResponseDto.builder()
-                    .title("title")
-                    .content("content")
+            BoardCreateResponseDto boardCreateResponseDto = BoardCreateResponseDto.builder()
+                    .title(TITLE)
+                    .content(CONTENT)
                     .build();
 
             given(boardService.create(any(BoardCreateRequestDto.class))).willReturn(boardCreateResponseDto);
@@ -110,6 +115,48 @@ public class BoardControllerTest {
                             .content(objectMapper.writeValueAsString(boardCreateRequestDto)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
+            ;
+        }
+    }
+
+    @Nested
+    @DisplayName("검색")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    public class SelectTest {
+        private final String URL = "/board/1";
+        private BoardSelectResponseDto boardSelectResponseDto;
+
+        @BeforeEach
+        public void setUp() {
+            String TITLE = "title";
+            String CONTENT = "content";
+            boardSelectResponseDto = BoardSelectResponseDto.builder()
+                    .seq(1L)
+                    .title(TITLE)
+                    .content(CONTENT)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("Success")
+        @Order(0)
+        public void select_success() throws Exception {
+            given(boardService.select(anyLong())).willReturn(boardSelectResponseDto);
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").isNotEmpty())
+            ;
+        }
+
+        @Test
+        @DisplayName("Not Found")
+        @Order(1)
+        public void select_not_found() throws Exception {
+            given(boardService.select(anyLong())).willThrow(BoardNotFoundException.class);
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isNotFound())
             ;
         }
     }

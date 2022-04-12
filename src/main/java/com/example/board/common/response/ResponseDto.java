@@ -2,6 +2,7 @@ package com.example.board.common.response;
 
 import com.example.board.common.enums.ResponseCode;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Data
@@ -36,6 +37,12 @@ public class ResponseDto<T> {
         ResponseDto<T> responseDto = create(ResponseCode.SUCCESS);
         responseDto.setData(data);
         return ResponseEntity.ok()
+                .body(responseDto);
+    }
+
+    public static <T> ResponseEntity<ResponseDto<T>> fail(HttpStatus httpStatus, ResponseCode responseCode) {
+        ResponseDto<T> responseDto = create(responseCode);
+        return ResponseEntity.status(httpStatus)
                 .body(responseDto);
     }
 }
