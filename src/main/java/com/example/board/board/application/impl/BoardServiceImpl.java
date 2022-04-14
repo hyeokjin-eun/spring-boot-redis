@@ -4,9 +4,9 @@ import com.example.board.board.application.BoardService;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
 import com.example.board.board.dto.response.BoardSelectResponseDto;
+import com.example.board.board.infra.dao.BoardDao;
 import com.example.board.board.infra.entity.Board;
-import com.example.board.board.infra.repository.BoardRepository;
-import com.example.board.common.error.exception.BoardNotFoundException;
+import com.example.board.board.infra.dao.impl.BoardDaoImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
-    private final BoardRepository boardRepository;
+    private final BoardDao boardDao;
 
     @Override
     public BoardCreateResponseDto create(BoardCreateRequestDto boardCreateRequestDto) {
-        Board board = boardRepository.save(Board.builder()
+        Board board = boardDao.save(Board.builder()
                         .title(boardCreateRequestDto.getTitle())
                         .content(boardCreateRequestDto.getContent())
                         .build());
@@ -34,9 +34,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public BoardSelectResponseDto select(long seq) {
-        Board board = boardRepository.findById(seq)
-                .orElseThrow(BoardNotFoundException::new);
-
+        Board board = boardDao.findById(seq);
         return BoardSelectResponseDto.builder()
                 .seq(board.getSeq())
                 .title(board.getTitle())
