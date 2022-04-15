@@ -1,6 +1,7 @@
 package com.example.board.board.application.impl;
 
 import com.example.board.board.application.BoardService;
+import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
 import com.example.board.board.dto.response.BoardSelectResponseDto;
@@ -23,12 +24,14 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardDao.save(Board.builder()
                         .title(boardCreateRequestDto.getTitle())
                         .content(boardCreateRequestDto.getContent())
+                        .status(BoardStatus.ACTIVE)
                         .build());
 
         return BoardCreateResponseDto.builder()
                 .seq(board.getSeq())
                 .title(board.getTitle())
                 .content(board.getContent())
+                .status(board.getStatus())
                 .build();
     }
 

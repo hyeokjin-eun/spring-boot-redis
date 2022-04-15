@@ -1,5 +1,6 @@
 package com.example.board.board.dto.response;
 
+import com.example.board.board.dto.enums.BoardStatus;
 import lombok.*;
 
 @Data
@@ -13,5 +14,7 @@ public class BoardCreateResponseDto {
     private String title;
 
     private String content;
+
+    private BoardStatus status;
 }
 

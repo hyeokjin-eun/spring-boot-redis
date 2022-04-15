@@ -1,6 +1,7 @@
 package com.example.board.board.ui;
 
 import com.example.board.board.application.BoardService;
+import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
 import com.example.board.board.dto.response.BoardSelectResponseDto;
@@ -44,20 +45,24 @@ public class BoardControllerTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     public class CreateTest {
         private final String URL = "/board";
+        private final long SEQ = 1L;
+        private final String TITLE = "title";
+        private final String CONTENT = "content";
+        private final String STATUS = "ACTIVE";
         private BoardCreateRequestDto boardCreateRequestDto;
 
         @BeforeEach
         public void setUp() {
-            String TITLE = "title";
-            String CONTENT = "content";
             boardCreateRequestDto = BoardCreateRequestDto.builder()
                     .title(TITLE)
                     .content(CONTENT)
                     .build();
 
             BoardCreateResponseDto boardCreateResponseDto = BoardCreateResponseDto.builder()
+                    .seq(SEQ)
                     .title(TITLE)
                     .content(CONTENT)
+                    .status(BoardStatus.ACTIVE)
                     .build();
 
             given(boardService.create(any(BoardCreateRequestDto.class))).willReturn(boardCreateResponseDto);
@@ -71,8 +76,10 @@ public class BoardControllerTest {
                             .contentType(MediaType.APPLICATION_JSON_VALUE)
                             .content(objectMapper.writeValueAsString(boardCreateRequestDto)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.title").value(boardCreateRequestDto.getTitle()))
-                    .andExpect(jsonPath("$.data.content").value(boardCreateRequestDto.getContent()))
+                    .andExpect(jsonPath("$.data.seq").value(SEQ))
+                    .andExpect(jsonPath("$.data.title").value(TITLE))
+                    .andExpect(jsonPath("$.data.content").value(CONTENT))
+                    .andExpect(jsonPath("$.data.status").value(STATUS))
                     ;
 
             verify(boardService).create(any(BoardCreateRequestDto.class));

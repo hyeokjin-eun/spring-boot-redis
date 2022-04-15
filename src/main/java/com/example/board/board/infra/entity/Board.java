@@ -1,14 +1,12 @@
 package com.example.board.board.infra.entity;
 
+import com.example.board.board.dto.enums.BoardStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -24,4 +22,8 @@ public class Board {
     private String title;
 
     private String content;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private BoardStatus status;
 }

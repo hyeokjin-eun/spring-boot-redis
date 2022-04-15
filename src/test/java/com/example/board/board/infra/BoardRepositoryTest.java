@@ -1,7 +1,9 @@
 package com.example.board.board.infra;
 
+import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.infra.entity.Board;
 import com.example.board.board.infra.repository.BoardRepository;
+import com.example.board.common.error.exception.BoardNotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,6 +26,7 @@ public class BoardRepositoryTest {
     public class SaveTest {
 
         private Board board;
+        private  final BoardStatus STATUS = BoardStatus.ACTIVE;
 
         @BeforeEach
         public void setUp() {
@@ -32,6 +35,7 @@ public class BoardRepositoryTest {
             board = Board.builder()
                     .title(TITLE)
                     .content(CONTENT)
+                    .status(STATUS)
                     .build();
         }
 
@@ -48,12 +52,15 @@ public class BoardRepositoryTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     public class FindByTest {
 
+        private final BoardStatus STATUS = BoardStatus.ACTIVE;
+
         @BeforeEach
         public void setUp() {
             for (int i = 0; i < 10; i++) {
                 testEntityManager.persist(Board.builder()
                         .title("title" + (i + 1))
                         .content("content" + (i + 1))
+                        .status(STATUS)
                         .build());
             }
         }
@@ -63,7 +70,7 @@ public class BoardRepositoryTest {
         @Order(0)
         public void success() {
             boardRepository.findById(1L)
-                    .orElse(null);
+                    .orElseThrow(BoardNotFoundException::new);
         }
     }
 }

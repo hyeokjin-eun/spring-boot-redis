@@ -1,11 +1,12 @@
 package com.example.board.board.application;
 
 import com.example.board.board.application.impl.BoardServiceImpl;
+import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
 import com.example.board.board.dto.response.BoardSelectResponseDto;
+import com.example.board.board.infra.dao.BoardDao;
 import com.example.board.board.infra.entity.Board;
-import com.example.board.board.infra.repository.BoardRepository;
 import com.example.board.common.error.exception.BoardNotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ public class BoardServiceTest {
     private BoardServiceImpl boardService;
 
     @Mock
-    private BoardRepository boardRepository;
+    private BoardDao boardDao;
 
     @Nested
     @DisplayName("생성")
@@ -52,9 +53,10 @@ public class BoardServiceTest {
                     .seq(1L)
                     .title(TITLE)
                     .content(CONTENT)
+                    .status(BoardStatus.ACTIVE)
                     .build();
 
-            given(boardRepository.save(any(Board.class))).willReturn(board);
+            given(boardDao.save(any(Board.class))).willReturn(board);
         }
 
         @Test
@@ -67,7 +69,8 @@ public class BoardServiceTest {
             assertThat(boardCreateResponseDto.getSeq()).isNotZero();
             assertThat(boardCreateResponseDto.getTitle()).isEqualTo(boardCreateRequestDto.getTitle());
             assertThat(boardCreateResponseDto.getContent()).isEqualTo(boardCreateRequestDto.getContent());
-            verify(boardRepository).save(any(Board.class));
+            assertThat(boardCreateResponseDto.getStatus()).isEqualTo(BoardStatus.ACTIVE);
+            verify(boardDao).save(any(Board.class));
         }
     }
 
@@ -93,7 +96,7 @@ public class BoardServiceTest {
         @DisplayName("Success")
         @Order(0)
         public void select_success() {
-            given(boardRepository.findById(anyLong())).willReturn(Optional.ofNullable(board));
+            given(boardDao.findById(anyLong())).willReturn(board);
 
             BoardSelectResponseDto boardSelectResponseDto = boardService.select(1L);
 
@@ -101,14 +104,14 @@ public class BoardServiceTest {
             assertThat(boardSelectResponseDto.getSeq()).isNotZero();
             assertThat(boardSelectResponseDto.getTitle()).isNotEmpty();
             assertThat(boardSelectResponseDto.getContent()).isNotEmpty();
-            verify(boardRepository).findById(anyLong());
+            verify(boardDao).findById(anyLong());
         }
 
         @Test
         @DisplayName("Not Found")
         @Order(1)
         public void select_not_found() {
-            given(boardRepository.findById(anyLong())).willReturn(Optional.empty());
+            given(boardDao.findById(anyLong())).willThrow(BoardNotFoundException.class);
             assertThrows(BoardNotFoundException.class, () -> boardService.select(1L));
         }
     }
