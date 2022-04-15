@@ -3,9 +3,12 @@ package com.example.board.board.ui;
 import com.example.board.board.application.BoardService;
 import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
+import com.example.board.board.dto.response.BoardCateResponseDto;
+import com.example.board.board.dto.response.BoardCateResponseListDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
 import com.example.board.board.dto.response.BoardSelectResponseDto;
-import com.example.board.common.error.exception.BoardNotFoundException;
+import com.example.board.board.exception.BoardCateNotFoundException;
+import com.example.board.board.exception.BoardNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +19,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -165,6 +171,56 @@ public class BoardControllerTest {
                             .contentType(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(status().isNotFound())
             ;
+        }
+    }
+
+    @Nested
+    @DisplayName("카테고리 조회")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    public class CateTest {
+        private final String URL = "/board/cates";
+        private final String[] cateNameList = new String[]{
+                "예술", "개발", "소셜", "학습", "연애"
+        };
+        private BoardCateResponseDto boardCateResponseDto;
+
+        @BeforeEach
+        public void setUp() {
+            BoardCateResponseDto boardCateResponseDto = new BoardCateResponseDto();
+            List<BoardCateResponseListDto> boardCateResponseListDtoList = new ArrayList<>();
+            for (int i = 0; i < cateNameList.length; i++) {
+                boardCateResponseListDtoList.add(BoardCateResponseListDto.builder()
+                        .seq(i + 1)
+                        .name(cateNameList[i])
+                        .build());
+            }
+
+            boardCateResponseDto.setList(boardCateResponseListDtoList);
+            this.boardCateResponseDto = boardCateResponseDto;
+        }
+
+        @Test
+        @DisplayName("Success")
+        @Order(0)
+        public void success() throws Exception {
+            given(boardService.cates()).willReturn(boardCateResponseDto);
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").isNotEmpty())
+                    .andExpect(jsonPath("$.data.list").isArray())
+                    .andExpect(jsonPath("$.data.list").isNotEmpty());
+            verify(boardService).cates();
+        }
+
+        @Test
+        @DisplayName("Not Found")
+        @Order(1)
+        public void cate_not_found() throws Exception {
+            given(boardService.cates()).willThrow(BoardCateNotFoundException.class);
+            mockMvc.perform(get(URL)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isNotFound());
         }
     }
 }

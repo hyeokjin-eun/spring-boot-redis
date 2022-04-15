@@ -1,5 +1,6 @@
 package com.example.board.board.ui;
 
+import com.example.board.board.dto.response.BoardCateResponseDto;
 import com.example.board.board.application.BoardService;
 import com.example.board.board.dto.request.BoardCreateRequestDto;
 import com.example.board.board.dto.response.BoardCreateResponseDto;
@@ -28,5 +29,10 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardSelectResponseDto>> select(
             @PathVariable long seq) {
         return ResponseDto.success(boardService.select(seq));
+    }
+
+    @GetMapping("cates")
+    public ResponseEntity<ResponseDto<BoardCateResponseDto>> cates() {
+        return ResponseDto.success(boardService.cates());
     }
 }

@@ -3,7 +3,7 @@ package com.example.board.board.infra;
 import com.example.board.board.dto.enums.BoardStatus;
 import com.example.board.board.infra.entity.Board;
 import com.example.board.board.infra.repository.BoardRepository;
-import com.example.board.common.error.exception.BoardNotFoundException;
+import com.example.board.board.exception.BoardNotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
