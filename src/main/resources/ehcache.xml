@@ -5,7 +5,7 @@
 
     <diskStore path="java.io.tmpdir" />
 
-    <cache name="board"
+    <cache name="boardCate"
            maxEntriesLocalHeap="100"
            maxEntriesLocalDisk="100"
            eternal="false"
